@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { JSONTree } from "react-json-tree";
-import { deleteContent, getContent } from "@service/r_content";
+import { deleteContent, getContents } from "@service/r_content";
 import { Button, Col, Flex, List, Popconfirm, Row, Space, message } from "antd";
 import ContentForm from "./ContentForm";
 import { makeFresh } from "@hheinsoee/utility";
@@ -19,7 +19,7 @@ function Archive({ type }) {
 
   const loadContent = (type_id) => {
     setLoading(true);
-    getContent({
+    getContents({
       where: {
         t_content_id: type_id,
       },
@@ -96,7 +96,7 @@ function Archive({ type }) {
                   </div>
                   <div className="flex items-center flex-wrap gap-2 opacity-40 text-sm">
                     {
-                      Object.entries(c.fields).map(([key, val]) => (
+                     c.fields && Object.entries(c.fields).map(([key, val]) => (
                         <Cell type={key} value={val} key={key} />
                       ))
                     }

@@ -2,8 +2,33 @@
 import prisma from "@/db";
 import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
-
-export const getContent = async (props?: Prisma.r_contentFindManyArgs) =>
+const contentPretty = (d: any) => {
+  return {
+    ...d,
+    fields: Object.assign(
+      {},
+      ...d.r_field?.map(({ name, value }: { name: string; value: string }) => ({
+        [String(name)]: String(value),
+      }))
+    ),
+    t_taxonomy: d.t_content?.map_t_content_t_taxonomy.reduce(
+      (acc: any, obj: any) => {
+        const rTaxonomyIds = d.map_r_content_r_taxonomy
+          .filter(
+            (map: any) => map.r_taxonomy.t_taxonomy_id === obj.t_taxonomy.id
+          )
+          .map((o: any) => o.r_taxonomy.id);
+        acc[obj.t_taxonomy.name] = rTaxonomyIds;
+        return acc;
+      },
+      {}
+    ),
+    r_field: undefined,
+    map_r_content_r_taxonomy: undefined,
+    t_content: undefined,
+  };
+};
+export const getContents = async (props?: Prisma.r_contentFindManyArgs) =>
   await prisma.r_content
     .findMany({
       orderBy: {
@@ -29,30 +54,42 @@ export const getContent = async (props?: Prisma.r_contentFindManyArgs) =>
       },
     })
     .then((data) => {
-      return data.map((d) => ({
-        ...d,
-        fields: Object.assign(
-          {},
-          ...d.r_field?.map(({ name, value }) => ({
-            [String(name)]: String(value),
-          }))
-        ),
-        t_taxonomy: d.t_content?.map_t_content_t_taxonomy.reduce(
-          (acc: any, obj) => {
-            const rTaxonomyIds = d.map_r_content_r_taxonomy
-              .filter(
-                (map) => map.r_taxonomy.t_taxonomy_id === obj.t_taxonomy.id
-              )
-              .map((o) => o.r_taxonomy.id);
-            acc[obj.t_taxonomy.name] = rTaxonomyIds;
-            return acc;
+      return data.map((d) => contentPretty(d));
+    })
+    .catch((e) => {
+      throw e;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+    
+export const getContent = async (props?: Prisma.r_contentFindFirstArgs) =>
+  await prisma.r_content
+    .findFirstOrThrow({
+      orderBy: {
+        id: "desc",
+      },
+      ...props,
+      include: {
+        t_content: {
+          select: {
+            map_t_content_t_taxonomy: {
+              select: {
+                t_taxonomy: true,
+              },
+            },
           },
-          {}
-        ),
-        r_field: undefined,
-        map_r_content_r_taxonomy: undefined,
-        t_content: undefined,
-      }));
+        },
+        map_r_content_r_taxonomy: {
+          include: {
+            r_taxonomy: true,
+          },
+        },
+        r_field: true,
+      },
+    })
+    .then((data) => {
+      return contentPretty(data);
     })
     .catch((e) => {
       throw e;
