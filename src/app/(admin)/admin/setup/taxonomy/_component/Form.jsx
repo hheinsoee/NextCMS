@@ -75,7 +75,7 @@ function TaxonomyForm({ selected, setSelected, setFreshData }) {
                 <Button disabled={loading} onClick={handleReset}>Reset</Button>
                 <Button loading={loading} type='primary' onClick={form.submit}>{selected?.id ? "Update" : "Create"}</Button>
             </div>
-            {/* <JSONTree data={{ selected, formData }} /> */}
+            <JSONTree data={{ selected, formData }} />
             <Form
                 onFinish={handleSubmit}
                 form={form}
@@ -119,7 +119,7 @@ function TaxonomyForm({ selected, setSelected, setFreshData }) {
                 </Form.Item>
                 <Form.Item
                     label="Words"
-                    name="r_taxonomy"
+                    name="taxonomies"
                     help="type word and press Enter"
                     rules={[
                         { required: true, message: 'Please input words and Enter' }

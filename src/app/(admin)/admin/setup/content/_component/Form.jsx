@@ -35,7 +35,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
     const handleSubmit = (value) => {
         const safeValue = {
             ...value,
-            t_field: value.t_field.filter(t => t.name)
+            fieldTypes: value.fieldTypes.filter(t => t.name)
         };
         setFormData(safeValue)
         // return;
@@ -59,11 +59,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
             });
         } else {
             setLoading(true)
-            createContentType({
-                data: {
-                    ...safeValue,
-                }
-            }).then((result) => {
+            createContentType(safeValue).then((result) => {
                 message.success('created');
                 setFreshData(result)
                 handleClear()
@@ -89,7 +85,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                 <Button disabled={loading} onClick={handleReset}>Reset</Button>
                 <Button loading={loading} type='primary' onClick={form.submit}>{selected?.id ? "Update" : "Create"}</Button>
             </div>
-            {/* <JSONTree data={{ formData }} /> */}
+            <JSONTree data={{selected, formData }} />
             <Form
                 onFinish={handleSubmit}
                 form={form}
@@ -138,7 +134,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                     </Col>
                     <Col span={8}>
                         fields
-                        <Form.List name={['t_field']}>
+                        <Form.List name={['fieldTypes']}>
                             {() => (
                                 new Array(current_t_field_length).fill('').map((f, i) => (
                                     <Space.Compact block key={i}>
@@ -153,7 +149,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                                                 placeholder={'name'} />
                                         </Form.Item>
                                         <Form.Item
-                                            name={[i, 'data_type']}
+                                            name={[i, 'dataType']}
                                         >
                                             <Select
                                                 style={{ width: '100%' }}
@@ -171,8 +167,8 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                             }
                         </Form.List>
                         <Form.Item
-                            name={'t_taxonomy_ids'}
-                            label={'taxonomy type'}
+                            name={'taxonomieTypeIds'}
+                            label={'taxonomy types'}
                         >
                             <Select
                                 mode="multiple"

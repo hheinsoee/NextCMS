@@ -21,7 +21,7 @@ function Archive({ type }) {
     setLoading(true);
     getContents({
       where: {
-        t_content_id: type_id,
+       contentTypeId: type_id,
       },
     })
       .then((data) => {
@@ -74,7 +74,7 @@ function Archive({ type }) {
             {content?.map((c) => (
               <List.Item key={c.id} className="my-8 cursor-default thumbnail">
                 <div className="flex-1">
-                  <Cell type="date" value={c.create_time} className="opacity-60" />
+                  <Cell type="date" value={c.createTime} className="opacity-60" />
                   <Flex justify='space-between'>
                     <h2 className="text-lg m-0">{c.title}</h2>
                     <Space.Compact className='action'>
@@ -96,8 +96,8 @@ function Archive({ type }) {
                   </div>
                   <div className="flex items-center flex-wrap gap-2 opacity-40 text-sm">
                     {
-                     c.fields && Object.entries(c.fields).map(([key, val]) => (
-                        <Cell type={key} value={val} key={key} />
+                     c.fields && c.fields.map((obj) => (
+                        <Cell type={obj.name} value={obj.value} key={obj.id} />
                       ))
                     }
                   </div>

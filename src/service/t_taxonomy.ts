@@ -1,24 +1,31 @@
 "use server";
 import prisma from "@/db";
 import { Prisma } from "@prisma/client";
-import { safeData } from "./index";
+import { TaxonomyType } from "@schema";
+import { safeData } from ".";
+
+// #region getMany
 interface TaxonomyQueryOptions {
-  r_taxonomy?: boolean;
+  taxonomy?: boolean;
   where?: any; // Adjust type according to your schema
 }
 export const getTaxonomyTypes = async ({
-  r_taxonomy,
+  taxonomy,
   where,
 }: TaxonomyQueryOptions) =>
-  await prisma.t_taxonomy
+  await prisma.taxonomyType
     .findMany({
       where,
       include: {
-        r_taxonomy,
+        taxonomy,
       },
     })
     .then((d) => {
-      return d;
+      return d.map((d) => ({
+        ...d,
+        taxonomies: d.taxonomy,
+        taxonomy: undefined,
+      }));
     })
     .catch((e) => {
       throw new Error(e);
@@ -32,24 +39,25 @@ export const getTaxonomyTypes = async ({
 //   name: string;
 // }
 
-export const createTaxonomy = async ({ data }: any) => {
-  const q = Prisma.validator<Prisma.t_taxonomyCreateArgs>()({
+// #region Create
+export const createTaxonomy = async ({ data }: { data: TaxonomyType }) => {
+  const q: Prisma.taxonomyTypeCreateArgs = {
     data: {
-      ...data,
-      r_taxonomy: {
+      ...(await safeData("taxonomyType", data)),
+      taxonomy: {
         createMany: {
-          data: data.r_taxonomy.map(({ name }: { name: string }) => ({
+          data: data.taxonomies.map(({ name }: { name: string }) => ({
             name,
           })),
         },
       },
-    },
-  });
-  return await prisma.t_taxonomy
+    } as Prisma.taxonomyTypeCreateInput,
+  };
+  return await prisma.taxonomyType
     .create(q)
     .then((d) => {
       return getTaxonomyTypes({
-        r_taxonomy: true,
+        taxonomy: true,
         where: {
           id: d.id,
         },
@@ -62,40 +70,42 @@ export const createTaxonomy = async ({ data }: any) => {
       await prisma.$disconnect();
     });
 };
+// #region  Update
 export const updateTaxonomy = async ({ where, data }: any) => {
-  const q = Prisma.validator<Prisma.t_taxonomyUpdateArgs>()({
+  const q = Prisma.validator<Prisma.taxonomyTypeUpdateArgs>()({
     where,
     data: {
-      ...data,
-      r_taxonomy: {
+      ...(await safeData("taxonomyType", data)),
+      taxonomy: {
         deleteMany: {},
         createMany: {
-          data: data.r_taxonomy.map(({ name }: any) => ({
+          data: data.taxonomies.map(({ name }: any) => ({
             name,
           })),
         },
       },
     },
   });
-  return await prisma.t_taxonomy
+  return await prisma.taxonomyType
     .update(q)
     .then((d) => {
       return getTaxonomyTypes({
-        r_taxonomy: true,
+        taxonomy: true,
         where: {
           id: d.id,
         },
       });
     })
     .catch((e) => {
-      throw (e);
+      throw e;
     })
     .finally(async () => {
       await prisma.$disconnect();
     });
 };
+// #region Delete
 export const deleteTaxonomyType = async ({ where }: any) => {
-  return await prisma.t_taxonomy
+  return await prisma.taxonomyType
     .delete({
       where,
     })

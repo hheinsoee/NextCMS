@@ -2,118 +2,82 @@
 import prisma from "@/db";
 import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
+import { ContentType, UpdateTaxonomyType } from "@schema";
 
-export const getContentStructure = async (props?: any) => {
-  const q = Prisma.validator<Prisma.t_contentFindManyArgs>()(props);
-  return await prisma.t_content
-    .findMany({
-      orderBy: {
-        id: "desc",
-      },
-      ...q,
-      include: {
-        t_field: true,
-        map_t_content_t_taxonomy: {
-          include: {
-            t_taxonomy: true,
-          },
+// #region getMany
+export const getContentTypes = async (
+  props?: Prisma.contentTypeFindManyArgs
+) => {
+  const q: Prisma.contentTypeFindManyArgs = {
+    orderBy: {
+      id: "desc",
+    },
+    include: {
+      fieldType: true,
+      mapContentTypeTaxonomyType: {
+        include: {
+          taxonomyType: true,
         },
       },
-    })
-    .then((data: any[]) => {
-      return data.map((d) => ({
+    },
+    ...props,
+  };
+  return await prisma.contentType
+    .findMany(q)
+    .then((data) => {
+      const d: ContentType[] = data.map((d: any) => ({
         ...d,
-        t_taxonomy: d.map_t_content_t_taxonomy?.map((t: any) => t.t_taxonomy),
-        // t_taxonomy_ids: d.map_t_content_t_taxonomy.map(
-        //   (t: any) => t.t_taxonomy_id
-        // ),
-        map_t_content_t_taxonomy: undefined,
+        taxonomyTypes: d.mapContentTypeTaxonomyType.map(
+          (t: any) => t.taxonomyType
+        ),
+        taxonomieTypeIds: d.mapContentTypeTaxonomyType?.map(
+          (t: any) => t.taxonomyTypeId
+        ),
+        fieldTypes: d.fieldType,
+        fieldType: undefined,
+        mapContentTypeTaxonomyType: undefined,
       }));
+      return d;
     })
     .catch((e) => {
-      throw new Error(e);
+      throw e;
     })
     .finally(() => {
       prisma.$disconnect();
     });
 };
-export const createContentType = async ({ data }: any) => {
-  const q = {
-    data: {
-      ...(await safeData("t_content", data)),
-      t_field: {
-        createMany: {
-          data: data.t_field.map(
-            ({ name, data_type }: { name: string; data_type: string }) => ({
-              name,
-              data_type,
-            })
-          ),
-        },
-      },
-      map_t_content_t_taxonomy: {
-        createMany: {
-          data:
-            data.t_taxonomy_ids?.map((id: number) => ({
-              t_taxonomy_id: id,
-            })) || [],
-        },
-      },
-    },
-  };
-  return await prisma.t_content
-    .create(q as Prisma.t_contentCreateArgs)
-    .then((d) => {
-      return getContentStructure({
-        where: {
-          id: d.id,
-        },
-      });
-    })
-    .catch((e) => {
-      throw new Error(e);
-    })
-    .finally(async () => {
-      await prisma.$disconnect();
-    });
-};
-// updateContentType;
 
-interface UpdateContentType {
-  where: Prisma.t_contentWhereUniqueInput;
-  data: any;
-}
-export const updateContentType = async ({ where, data }: UpdateContentType) => {
-  const inputs = {
-    where,
+// #region create
+export const createContentType = async (data: ContentType) => {
+  const q: Prisma.contentTypeCreateArgs = {
     data: {
-      ...(await safeData("t_content", data)),
-      t_field: {
-        deleteMany: {},
-        createMany: {
-          data: data.t_field.map(({ name, data_type }: any) => ({
-            name,
-            data_type,
-          })),
-        },
-      },
-      map_t_content_t_taxonomy: {
-        deleteMany: {},
-        ...(data?.t_taxonomy_ids?.length > 0 && {
+      ...(await safeData("contentType", data)),
+      ...(data.fieldTypes && {
+        fieldType: {
           createMany: {
-            data: data.t_taxonomy_ids?.map((id: number) => ({
-              t_taxonomy_id: id,
+            data: data.fieldTypes.map(({ name, dataType }) => ({
+              name,
+              dataType,
             })),
           },
-        }),
-      },
-    },
+        },
+      }),
+      ...(data.taxonomyTypes && {
+        mapContentTypeTaxonomytype: {
+          createMany: {
+            data:
+              data.taxonomyTypes?.map(({ id }) => ({
+                taxonomyTypeId: id,
+              })) || [],
+          },
+        },
+      }),
+    } as Prisma.contentTypeCreateInput,
   };
-  return await prisma.t_content
-    .update(inputs as Prisma.t_contentUpdateArgs)
+  return await prisma.contentType
+    .create(q)
     .then((d) => {
-      console.log({ d });
-      return getContentStructure({
+      return getContentTypes({
         where: {
           id: d.id,
         },
@@ -126,10 +90,62 @@ export const updateContentType = async ({ where, data }: UpdateContentType) => {
       await prisma.$disconnect();
     });
 };
+// updateContentType;
+
+// #region Update
+interface UpdateContentType {
+  where: Prisma.contentTypeWhereUniqueInput;
+  data: ContentType;
+}
+export const updateContentType = async ({ where, data }: UpdateContentType) => {
+  const inputs: Prisma.contentTypeUpdateInput = {
+    ...(await safeData("contentType", data)),
+    fieldType: {
+      deleteMany: {},
+      ...(data.fieldTypes && {
+        createMany: {
+          data: data.fieldTypes.map(({ name, dataType }: any) => ({
+            name,
+            dataType,
+          })),
+        },
+      }),
+    },
+    mapContentTypeTaxonomyType: {
+      deleteMany: {},
+      createMany: {
+        data: data.taxonomieTypeIds.map((id) => ({
+          taxonomyTypeId: id,
+        })),
+      },
+    },
+  };
+  return await prisma.contentType
+    .update({
+      where,
+      data: inputs,
+    })
+    .then((d) => {
+      console.log({ d });
+      return getContentTypes({
+        where: {
+          id: d.id,
+        },
+      });
+    })
+    .catch((e) => {
+      throw e;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+};
+
+// #region Delete
 export const deleteContentType = async ({
   where,
-}: Prisma.t_contentDeleteArgs) => {
-  return await prisma.t_content
+}: Prisma.contentTypeDeleteArgs) => {
+  return await prisma.contentType
     .delete({
       where,
     })

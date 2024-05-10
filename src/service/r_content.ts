@@ -2,55 +2,54 @@
 import prisma from "@/db";
 import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
+import { Content, Field, Taxonomy } from "@schema";
+// #region contentPretty
 const contentPretty = (d: any) => {
-  return {
+  const prettyContent: Content = {
     ...d,
-    fields: Object.assign(
-      {},
-      ...d.r_field?.map(({ name, value }: { name: string; value: string }) => ({
-        [String(name)]: String(value),
-      }))
-    ),
-    t_taxonomy: d.t_content?.map_t_content_t_taxonomy.reduce(
-      (acc: any, obj: any) => {
-        const rTaxonomyIds = d.map_r_content_r_taxonomy
+    sfd: "sd",
+    fields: d.field,
+    taxonomies: d.contentType?.mapContentTypeTaxonomyType.map((obj: any) => {
+      return {
+        ...obj.taxonomyType,
+        recordIds: d.mapContentTaxonomy
           .filter(
-            (map: any) => map.r_taxonomy.t_taxonomy_id === obj.t_taxonomy.id
+            (map: any) => map.taxonomy.taxonomyTypeId === obj.taxonomyType.id
           )
-          .map((o: any) => o.r_taxonomy.id);
-        acc[obj.t_taxonomy.name] = rTaxonomyIds;
-        return acc;
-      },
-      {}
-    ),
-    r_field: undefined,
-    map_r_content_r_taxonomy: undefined,
-    t_content: undefined,
+          .map((o: any) => o.taxonomy.id),
+      };
+    }, {}),
+    field: undefined,
+    mapContentTaxonomy: undefined,
+    contentType: undefined,
   };
+  return prettyContent;
 };
-export const getContents = async (props?: Prisma.r_contentFindManyArgs) =>
-  await prisma.r_content
+
+// #region getContents
+export const getContents = async (props?: Prisma.contentFindManyArgs) =>
+  await prisma.content
     .findMany({
       orderBy: {
         id: "desc",
       },
       ...props,
       include: {
-        t_content: {
+        contentType: {
           select: {
-            map_t_content_t_taxonomy: {
+            mapContentTypeTaxonomyType: {
               select: {
-                t_taxonomy: true,
+                taxonomyType: true,
               },
             },
           },
         },
-        map_r_content_r_taxonomy: {
+        mapContentTaxonomy: {
           include: {
-            r_taxonomy: true,
+            taxonomy: true,
           },
         },
-        r_field: true,
+        field: true,
       },
     })
     .then((data) => {
@@ -62,30 +61,34 @@ export const getContents = async (props?: Prisma.r_contentFindManyArgs) =>
     .finally(async () => {
       await prisma.$disconnect();
     });
-    
-export const getContent = async (props?: Prisma.r_contentFindFirstArgs) =>
-  await prisma.r_content
+
+function flatten2DArray<T>(arr: T[][]): T[] {
+  return arr.flatMap((row) => row);
+}
+// #region getContent
+export const getContent = async (props?: Prisma.contentFindFirstArgs) =>
+  await prisma.content
     .findFirstOrThrow({
       orderBy: {
         id: "desc",
       },
       ...props,
       include: {
-        t_content: {
+        contentType: {
           select: {
-            map_t_content_t_taxonomy: {
+            mapContentTypeTaxonomyType: {
               select: {
-                t_taxonomy: true,
+                taxonomyType: true,
               },
             },
           },
         },
-        map_r_content_r_taxonomy: {
+        mapContentTaxonomy: {
           include: {
-            r_taxonomy: true,
+            taxonomy: true,
           },
         },
-        r_field: true,
+        field: true,
       },
     })
     .then((data) => {
@@ -97,34 +100,35 @@ export const getContent = async (props?: Prisma.r_contentFindFirstArgs) =>
     .finally(async () => {
       await prisma.$disconnect();
     });
-
-interface CreateContent {
-  data: any;
-}
-export const createContent = async ({ data }: CreateContent) => {
+// #region createContent
+export const createContent = async ({ data }: any) => {
   console.dir("create");
   const q = {
     data: {
-      ...(await safeData("r_content", data)),
-      r_field: {
+      ...(await safeData("content", data)),
+      field: {
         createMany: {
-          data: Object.entries(data.fields).map(([key, value]) => ({
-            name: String(key),
-            value: String(value),
+          data: data.fields.map(({ name, value }: Field) => ({
+            name: name,
+            value: value,
           })),
         },
       },
-      map_r_content_r_taxonomy: {
+      mapContentTaxonomy: {
         createMany: {
-          data: Object.entries(data.t_taxonomy).flatMap(([key, value]) =>
-            value.map((num) => ({ r_taxonomy_id: Number(num) }))
-          ),
+          data: data.taxonomies
+            .flatMap((row: Taxonomy) => {
+              if (row.recordIds?.length > 0) {
+                return row.recordIds.map((num) => ({ taxonomyId: num }));
+              }
+            })
+            .filter((item: any) => item !== undefined),
         },
       },
     },
   };
-  return await prisma.r_content
-    .create(q as Prisma.r_contentCreateArgs)
+  return await prisma.content
+    .create(q as Prisma.contentCreateArgs)
     .then((d) => {
       return getContent({
         where: {
@@ -133,46 +137,51 @@ export const createContent = async ({ data }: CreateContent) => {
       });
     })
     .catch((e) => {
-      throw new Error(e);
+      throw e;
     })
     .finally(async () => {
       await prisma.$disconnect();
     });
 };
+// #region updatecontent
 export const updateContent = async ({
   where,
   data,
 }: {
-  where: Prisma.r_contentWhereUniqueInput;
-  data: any;
+  where: Prisma.contentWhereUniqueInput;
+  data: Content;
 }) => {
   const q = {
     where: {
       ...where,
     },
     data: {
-      ...(await safeData("r_content", data)),
-      r_field: {
+      ...(await safeData("content", data)),
+      field: {
         deleteMany: {},
         createMany: {
-          data: Object.entries(data.fields).map(([key, value]) => ({
-            name: String(key),
-            value: String(value),
+          data: data.fields.map(({ name, value }: Field) => ({
+            name: name,
+            value: value,
           })),
         },
       },
-      map_r_content_r_taxonomy: {
+      mapContentTaxonomy: {
         deleteMany: {},
         createMany: {
-          data: Object.entries(data.t_taxonomy).flatMap(([key, value]) =>
-            value.map((num) => ({ r_taxonomy_id: num }))
-          ),
+          data: data.taxonomies
+            .flatMap((row: Taxonomy) => {
+              if (row.recordIds?.length > 0) {
+                return row.recordIds.map((num) => ({ taxonomyId: num }));
+              }
+            })
+            .filter((item: any) => item !== undefined),
         },
       },
     },
   };
-  return await prisma.r_content
-    .update(q as Prisma.r_contentUpdateArgs)
+  return await prisma.content
+    .update(q as Prisma.contentUpdateArgs)
     .then((d) => {
       return getContent({
         where: {
@@ -187,9 +196,9 @@ export const updateContent = async ({
       await prisma.$disconnect();
     });
 };
-
-export const deleteContent = async ({ where }: Prisma.r_contentDeleteArgs) => {
-  return await prisma.r_content
+// #region deleteContent
+export const deleteContent = async ({ where }: Prisma.contentDeleteArgs) => {
+  return await prisma.content
     .delete({
       where,
     })

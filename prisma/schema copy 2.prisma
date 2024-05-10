@@ -1,0 +1,99 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model map_Content_Taxonomy {
+  id          Int       @id @default(autoincrement())
+  Content_id  Int
+  Taxonomy_id Int
+  create_time DateTime? @default(now()) @db.DateTime(0)
+  Content     Content   @relation(fields: [Content_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_1")
+  Taxonomy    Taxonomy  @relation(fields: [Taxonomy_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_2")
+
+  @@index([Content_id], map: "content_id")
+  @@index([Taxonomy_id], map: "taxonomy_id")
+}
+
+model map_ContentType_TaxonomyType {
+  id              Int          @id @default(autoincrement())
+  TaxonomyType_id Int
+  ContentType_id  Int
+  create_time     DateTime?    @default(now()) @db.DateTime(0)
+  TaxonomyType    TaxonomyType @relation(fields: [TaxonomyType_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_ContentType_TaxonomyType_ibfk_1")
+  ContentType     ContentType  @relation(fields: [ContentType_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_ContentType_TaxonomyType_ibfk_2")
+
+  @@index([TaxonomyType_id], map: "taxonomy_id")
+  @@index([ContentType_id], map: "type_id")
+}
+
+model Content {
+  id                   Int                    @id @default(autoincrement())
+  title                String                 @db.VarChar(200)
+  description          String?                @db.Text
+  body                 String?                @db.Text
+  ContentType_id       Int?
+  create_time          DateTime?              @default(now()) @db.DateTime(0)
+  map_Content_Taxonomy map_Content_Taxonomy[]
+  ContentType          ContentType?           @relation(fields: [ContentType_id], references: [id], onUpdate: NoAction, map: "Content_ibfk_1")
+  Field                Field[]
+
+  @@index([ContentType_id], map: "type_id")
+}
+
+model Field {
+  id          Int       @id @default(autoincrement())
+  create_time DateTime? @default(now()) @db.DateTime(0)
+  name        String?   @db.VarChar(255)
+  value       String?   @db.Text
+  Content_id  Int?
+  Content     Content?  @relation(fields: [Content_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "Field_ibfk_1")
+
+  @@index([Content_id], map: "content_id")
+}
+
+model Taxonomy {
+  id                   Int                    @id @default(autoincrement())
+  TaxonomyType_id      Int?
+  name                 String                 @db.VarChar(200)
+  create_time          DateTime?              @default(now()) @db.DateTime(0)
+  map_Content_Taxonomy map_Content_Taxonomy[]
+  TaxonomyType         TaxonomyType?          @relation(fields: [TaxonomyType_id], references: [id], onUpdate: NoAction, map: "Taxonomy_ibfk_1")
+
+  @@index([TaxonomyType_id], map: "taxonomy_id")
+}
+
+model ContentType {
+  id                           Int                            @id @default(autoincrement())
+  name                         String                         @db.VarChar(200)
+  description                  String?                        @db.Text
+  create_time                  DateTime?                      @default(now()) @db.DateTime(0)
+  map_ContentType_TaxonomyType map_ContentType_TaxonomyType[]
+  Content                      Content[]
+  FieldType                    FieldType[]
+}
+
+model FieldType {
+  id             Int          @id @default(autoincrement())
+  name           String       @db.VarChar(200)
+  ContentType_id Int?
+  data_type      String?      @db.VarChar(20)
+  create_time    DateTime?    @default(now()) @db.DateTime(0)
+  ContentType    ContentType? @relation(fields: [ContentType_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FieldType_ibfk_1")
+
+  @@index([ContentType_id], map: "type_id")
+}
+
+model TaxonomyType {
+  id                           Int                            @id @default(autoincrement())
+  name                         String                         @db.VarChar(200)
+  description                  String?                        @db.Text
+  create_time                  DateTime?                      @default(now()) @db.DateTime(0)
+  map_ContentType_TaxonomyType map_ContentType_TaxonomyType[]
+  Taxonomy                     Taxonomy[]
+}

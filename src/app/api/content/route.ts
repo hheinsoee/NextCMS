@@ -1,15 +1,14 @@
 import { getContents } from "@/service/r_content";
-import { getContentStructure } from "@/service/t_content";
 import { QueryJson } from "@/utility/nextQuery";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const { t_content_id } = QueryJson(request);
+  const { contentTypeId } = QueryJson(request);
   return await getContents({
-    ...(t_content_id && {
+    ...(contentTypeId && {
       where: {
-        t_content_id: {
-          equals: Number(t_content_id),
+        contentTypeId: {
+          equals: Number(contentTypeId),
         },
       },
     }),

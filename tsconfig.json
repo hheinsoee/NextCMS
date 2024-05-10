@@ -24,7 +24,8 @@
       "@service/*": ["./src/service/*"],
       "@context/*": ["./src/context/*"],
       "@config":["./app.config.json"],
-      "@utility/*":["./src/utility/*"]
+      "@utility/*":["./src/utility/*"],
+      "@schema":["./schema/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(web)/blog/page.jsx"],

@@ -15,7 +15,7 @@ function TaxonomyArchive({ selected, setSelected, freshData }) {
 
     const loadTaxonomyTypes = () => {
         setLoading(true);
-        getTaxonomyTypes({ r_taxonomy: true })
+        getTaxonomyTypes({ taxonomy: true })
             .then((data) => {
                 setData(data);
             })

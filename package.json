@@ -7,13 +7,13 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
-    "db-update": "npx prisma migrate dev --name init",
-    "prisma-update": "npx prisma db pull && npx prisma generate",
+    "db-update": "npx prisma migrate dev",
+    "prisma-update": "npx prisma db pull",
     "prisma-client-update": "npx prisma generate"
   },
   "dependencies": {
     "@hheinsoee/utility": "file:../npm/utility/hheinsoee-utility-1.0.2.tgz",
-    "@prisma/client": "^5.12.1",
+    "@prisma/client": "^5.13.0",
     "antd": "^5.16.1",
     "cookies-next": "^4.1.1",
     "dayjs": "^1.11.10",

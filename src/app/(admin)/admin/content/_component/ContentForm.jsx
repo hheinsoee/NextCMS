@@ -39,6 +39,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                 }
             }).then((result) => {
                 message.success('updated');
+                console.log({result})
                 setFreshData(result)
             }).catch((error) => {
                 message.error(error?.message || "sth wrong");
@@ -50,7 +51,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
             createContent({
                 data: {
                     ...value,
-                    t_content_id: type.id
+                    contentTypeId: type.id
                 }
             }).then((result) => {
                 message.success('created');
@@ -67,7 +68,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
 
     return (
         <div className='overflow-y-auto relative h-screen'>
-            {/* <JSONTree data={{ ls_taxonomy_type, selected, formData }} /> */}
+            <JSONTree data={{ type, selected, ls_taxonomy_type, formData }} />
             <Form
                 onFinish={handleSubmit}
                 form={form}
@@ -133,23 +134,22 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                     <Col span={8}>
                         <div className='sticky top-20'>
                             <Form.Item
-                                name={['t_taxonomy']}
+                                name={['taxonomies']}
                             >
-                                {type.t_taxonomy.length > 0 && <>
+                                {type.taxonomyTypes?.length > 0 && <>
                                     <div className='opacity-50 text-sm'>taxonomy</div>
 
-                                    {type.t_taxonomy.map(t => (
+                                    {type.taxonomyTypes?.map((t, i) => (
                                         <Form.Item
                                             key={t.id}
-                                            name={['t_taxonomy', t.name
-                                            ]}
+                                            name={['taxonomies', i, 'recordIds']}
                                             label={t.name}
                                         >
                                             <Select
                                                 mode="multiple"
                                                 style={{ width: '100%' }}
                                                 options={
-                                                    ls_taxonomy_type.find(tax => tax.id == t.id).r_taxonomy.map((taxo => ({ ...taxo, value: taxo.id, label: taxo.name })))
+                                                    ls_taxonomy_type.find(tax => tax.id == t.id).taxonomies.map((taxo => ({ ...taxo, value: taxo.id, label: taxo.name })))
                                                 }
                                                 placeholder={t.name} />
                                         </Form.Item>
@@ -157,23 +157,26 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                                 </>
                                 }
                             </Form.Item>
-                            {type?.t_field?.length > 0 && (
-                                <><Divider />
-                                    <div className='opacity-50 text-sm'>Fields</div>
-                                    <Form.List name={['fields']}>
-                                        {() => (
-                                            <>
-                                                {type.t_field.map(f => (
-                                                    <Form.Item key={f.id} name={[f.name]} label={f.name}>
-                                                        <Input placeholder={f.name} />
-                                                        {/* <Fields ls_field={type?.ls_field} /> */}
-                                                    </Form.Item>
-                                                ))}
-                                            </>
-                                        )}
-                                    </Form.List>
+
+                            <Form.Item
+                                name={['taxonomies']}
+                            >
+                                {type.fieldTypes?.length > 0 && <>
+                                    <div className='opacity-50 text-sm'>field</div>
+
+                                    {type.fieldTypes?.map((t, i) => (
+                                        <Form.Item
+                                            key={t.id}
+                                            name={['fields', i]}
+                                            label={t.name}
+                                        >
+                                            <FieldInput name={t.name} />
+                                        </Form.Item>
+                                    ))}
                                 </>
-                            )}
+                                }
+                            </Form.Item>
+
                         </div>
                     </Col>
                 </Row>
@@ -183,3 +186,13 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
 }
 
 export default ContentForm;
+
+const FieldInput = ({ onChange, value, name }) => {
+    const handleChange = (v) => {
+        onChange({
+            name: name,
+            value: v
+        })
+    }
+    return <Input placeholder={name} value={value?.value} onChange={(e) => handleChange(e.target.value)} />
+}

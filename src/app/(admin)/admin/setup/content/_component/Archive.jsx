@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { deleteContentType, getContentStructure } from '@service/t_content'
+import { deleteContentType, getContentTypes } from '@service/t_content'
 import { Button, Col, Flex, List, Popconfirm, Row, Space, Tag, message } from 'antd';
 import { JSONTree } from 'react-json-tree';
 import Loading from '@components/Loading';
@@ -15,7 +15,7 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
 
     const loadContentTypeList = () => {
         setLoading(true);
-        getContentStructure()
+        getContentTypes()
             .then((data) => {
                 setT_content(data);
             })
@@ -81,7 +81,7 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
                                     <td>taxonomy</td>
                                     <td>
                                         {
-                                            tc.t_taxonomy.map((t) => (
+                                            tc.taxonomyTypes?.map((t) => (
                                                 <Tag key={t.id} color="cyan" bordered={false}>{t.name}</Tag>
                                             ))
                                         }
@@ -91,9 +91,9 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
                                     <td>fields</td>
                                     <td>
                                         {
-                                            tc.t_field.map((field) => (
-                                                <Tag key={field.id}>
-                                                    {field.name} [{field.data_type}]
+                                            tc.fieldTypes?.map((field) => (
+                                                <Tag key={field.id} bordered={false}>
+                                                    {field.name} [{field.dataType}]
                                                 </Tag>
                                             ))
                                         }
