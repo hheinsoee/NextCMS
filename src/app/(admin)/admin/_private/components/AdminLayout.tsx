@@ -20,14 +20,8 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           <AdminMenu />
         </div>
       </Sider>
-      <Layout className="px-4 py-1 relative min-h-screen">
-        <Content className="-my-1">{children}</Content>
-        <Footer
-          style={{ textAlign: "right" }}
-          className="fixed bg-transparent bottom-0 right-0 p-16 opacity-25"
-        >
-          Crow CMS ©{new Date().getFullYear()} Created by heinsoe.com
-        </Footer>
+      <Layout className="min-h-screen">
+        <Content>{children}</Content>
       </Layout>
     </Layout>
   );

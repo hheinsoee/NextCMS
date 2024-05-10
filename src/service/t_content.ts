@@ -4,6 +4,18 @@ import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
 import { ContentType, UpdateTaxonomyType } from "@schema";
 
+const prettyType = (d: any) => {
+  return {
+    ...d,
+    taxonomyTypes: d.mapContentTypeTaxonomyType.map((t: any) => t.taxonomyType),
+    taxonomieTypeIds: d.mapContentTypeTaxonomyType?.map(
+      (t: any) => t.taxonomyTypeId
+    ),
+    fieldTypes: d.fieldType,
+    fieldType: undefined,
+    mapContentTypeTaxonomyType: undefined,
+  };
+};
 // #region getMany
 export const getContentTypes = async (
   props?: Prisma.contentTypeFindManyArgs
@@ -25,19 +37,36 @@ export const getContentTypes = async (
   return await prisma.contentType
     .findMany(q)
     .then((data) => {
-      const d: ContentType[] = data.map((d: any) => ({
-        ...d,
-        taxonomyTypes: d.mapContentTypeTaxonomyType.map(
-          (t: any) => t.taxonomyType
-        ),
-        taxonomieTypeIds: d.mapContentTypeTaxonomyType?.map(
-          (t: any) => t.taxonomyTypeId
-        ),
-        fieldTypes: d.fieldType,
-        fieldType: undefined,
-        mapContentTypeTaxonomyType: undefined,
-      }));
+      const d: ContentType[] = data.map((d: any) => prettyType(d));
       return d;
+    })
+    .catch((e) => {
+      throw e;
+    })
+    .finally(() => {
+      prisma.$disconnect();
+    });
+};
+// #region getOnce
+export const getContentType = async (
+  props?: Prisma.contentTypeFindUniqueArgs
+) => {
+  console.log(props)
+  const q = {
+    include: {
+      fieldType: true,
+      mapContentTypeTaxonomyType: {
+        include: {
+          taxonomyType: true,
+        },
+      },
+    },
+    ...props,
+  };
+  return await prisma.contentType
+    .findFirst(q)
+    .then((data) => {
+      return prettyType(data);
     })
     .catch((e) => {
       throw e;
@@ -52,16 +81,16 @@ export const createContentType = async (data: ContentType) => {
   const q: Prisma.contentTypeCreateArgs = {
     data: {
       ...(await safeData("contentType", data)),
-      ...(data.fieldTypes && {
-        fieldType: {
-          createMany: {
-            data: data.fieldTypes.map(({ name, dataType }) => ({
+      fieldType: {
+        createMany: {
+          data: data.fieldTypes
+            .map(({ name, dataType }) => ({
               name,
               dataType,
-            })),
-          },
+            }))
+            .filter((item: any) => item !== undefined),
         },
-      }),
+      },
       ...(data.taxonomyTypes && {
         mapContentTypeTaxonomytype: {
           createMany: {
@@ -102,21 +131,23 @@ export const updateContentType = async ({ where, data }: UpdateContentType) => {
     ...(await safeData("contentType", data)),
     fieldType: {
       deleteMany: {},
-      ...(data.fieldTypes && {
-        createMany: {
-          data: data.fieldTypes.map(({ name, dataType }: any) => ({
+      createMany: {
+        data: data.fieldTypes
+          .map(({ name, dataType }: any) => ({
             name,
             dataType,
-          })),
-        },
-      }),
+          }))
+          .filter((item: any) => item !== undefined),
+      },
     },
     mapContentTypeTaxonomyType: {
       deleteMany: {},
       createMany: {
-        data: data.taxonomieTypeIds.map((id) => ({
-          taxonomyTypeId: id,
-        })),
+        data: data.taxonomieTypeIds
+          .map((id) => ({
+            taxonomyTypeId: id,
+          }))
+          .filter((item: any) => item !== undefined),
       },
     },
   };

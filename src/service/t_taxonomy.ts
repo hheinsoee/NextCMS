@@ -5,14 +5,14 @@ import { TaxonomyType } from "@schema";
 import { safeData } from ".";
 
 // #region getMany
-interface TaxonomyQueryOptions {
-  taxonomy?: boolean;
-  where?: any; // Adjust type according to your schema
-}
+
 export const getTaxonomyTypes = async ({
   taxonomy,
   where,
-}: TaxonomyQueryOptions) =>
+}: {
+  taxonomy?: boolean;
+  where?: any;
+}) =>
   await prisma.taxonomyType
     .findMany({
       where,

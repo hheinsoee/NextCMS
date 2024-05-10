@@ -70,12 +70,12 @@ function TaxonomyForm({ selected, setSelected, setFreshData }) {
     return (
         <div>
             <div className='flex items-center gap-4'>
-                <h2 className='flex-1'>{selected?.id ? "Update" : "Create"} Content Type</h2>
+                <h2 className='flex-1'>{selected?.id ? "Update" : "Create"} Taxonomy Type</h2>
                 <Button disabled={loading} onClick={handleClear}>Clear</Button>
                 <Button disabled={loading} onClick={handleReset}>Reset</Button>
                 <Button loading={loading} type='primary' onClick={form.submit}>{selected?.id ? "Update" : "Create"}</Button>
             </div>
-            <JSONTree data={{ selected, formData }} />
+            {/* <JSONTree data={{ selected, formData }} /> */}
             <Form
                 onFinish={handleSubmit}
                 form={form}

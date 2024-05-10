@@ -67,8 +67,8 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
     }
 
     return (
-        <div className='overflow-y-auto relative h-screen'>
-            <JSONTree data={{ type, selected, ls_taxonomy_type, formData }} />
+        <div  className="px-8 box-border mx-auto max-h-screen overflow-y-auto">
+            {/* <JSONTree data={{ type, selected, ls_taxonomy_type, formData }} /> */}
             <Form
                 onFinish={handleSubmit}
                 form={form}
@@ -79,7 +79,6 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                 wrapperCol={{
                     span: 24,
                 }}
-                className='max-w-5xl mx-auto'
                 initialValues={{
                     remember: true,
                 }}
@@ -132,7 +131,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <div className='sticky top-20'>
+                        <div className='sticky top-0'>
                             <Form.Item
                                 name={['taxonomies']}
                             >

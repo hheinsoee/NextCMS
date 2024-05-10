@@ -3,7 +3,7 @@ export type Content = {
   title: string;
   description: string;
   body?: string;
-  contentTypeTd: number;
+  contentTypeId: number;
   createTime: Date;
   fields: Field[] | [];
   taxonomies: Taxonomy[] | [];
@@ -13,7 +13,7 @@ export type ContentType = {
   name: string;
   description?: Text;
   createTime?: Date;
-  fieldTypes?: FieldType[] | [];
+  fieldTypes: FieldType[] | [];
   taxonomieTypeIds: number[];
   taxonomyTypes?: TaxonomyType[];
 };

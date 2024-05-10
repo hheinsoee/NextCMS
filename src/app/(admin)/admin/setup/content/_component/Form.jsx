@@ -85,7 +85,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                 <Button disabled={loading} onClick={handleReset}>Reset</Button>
                 <Button loading={loading} type='primary' onClick={form.submit}>{selected?.id ? "Update" : "Create"}</Button>
             </div>
-            <JSONTree data={{selected, formData }} />
+            {/* <JSONTree data={{selected, formData }} /> */}
             <Form
                 onFinish={handleSubmit}
                 form={form}

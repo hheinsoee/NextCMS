@@ -101,27 +101,27 @@ export const getContent = async (props?: Prisma.contentFindFirstArgs) =>
       await prisma.$disconnect();
     });
 // #region createContent
-export const createContent = async ({ data }: any) => {
-  console.dir("create");
+export const createContent = async ({ data }: { data: Content }) => {
+  console.dir(data);
   const q = {
     data: {
       ...(await safeData("content", data)),
       field: {
         createMany: {
-          data: data.fields.map(({ name, value }: Field) => ({
-            name: name,
-            value: value,
-          })),
+          data: data.fields
+            .map(({ name, value }: Field) => ({
+              name: name,
+              value: value,
+            }))
+            .filter((item: any) => item !== undefined),
         },
       },
       mapContentTaxonomy: {
         createMany: {
           data: data.taxonomies
-            .flatMap((row: Taxonomy) => {
-              if (row.recordIds?.length > 0) {
-                return row.recordIds.map((num) => ({ taxonomyId: num }));
-              }
-            })
+            .flatMap((row: Taxonomy) =>
+              row.recordIds.map((num) => ({ taxonomyId: num }))
+            )
             .filter((item: any) => item !== undefined),
         },
       },
@@ -160,26 +160,28 @@ export const updateContent = async ({
       field: {
         deleteMany: {},
         createMany: {
-          data: data.fields.map(({ name, value }: Field) => ({
-            name: name,
-            value: value,
-          })),
+          data: data.fields
+            .map(({ name, value }: Field) => ({
+              name: name,
+              value: value,
+            }))
+            .filter((item: any) => item !== undefined),
         },
       },
       mapContentTaxonomy: {
         deleteMany: {},
         createMany: {
           data: data.taxonomies
-            .flatMap((row: Taxonomy) => {
-              if (row.recordIds?.length > 0) {
-                return row.recordIds.map((num) => ({ taxonomyId: num }));
-              }
-            })
+            .flatMap((row: Taxonomy) =>
+              row.recordIds.map((num) => ({ taxonomyId: num }))
+            )
             .filter((item: any) => item !== undefined),
         },
       },
     },
   };
+
+  console.dir(q, { depth: null });
   return await prisma.content
     .update(q as Prisma.contentUpdateArgs)
     .then((d) => {
