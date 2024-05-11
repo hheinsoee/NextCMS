@@ -1,45 +1,47 @@
-### base url
+###
 
-| -       | -            |
-| :------ | :----------- |
-| baseurl | `{{url}}`    |
-| params  | `{{params}}` |
+base url `{{url}}`
+| options | description | defaultValue |
+| :-------- | :-----------|:----------- |
+| where |`{{params_where}}` | `undefined` |
+| include |`{{params_include}}` | `undefined` |
 
-# client Site using
+### Function
 
-```jsx
-"use client";
-//....
-const [loading, setLoading] = useState(false);
-const [result, setResult] = useState();
-const [err, setErr] = useState(false);
+```js
+const options = {
+  where: {
+    contentTypeId: {{type_id}},
+  },
+}
+```
 
-const load = async () => {
-  setLoading(true);
-  await fetch("{{url}}")
-    .then(async (response: any) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const d = await response.json();
-      setResult(d);
-    })
-    .catch((err: any) => {
-      setErr(err);
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
-useEffect(() => {
-  load();
-}, []);
-return (
-  <div>
-    {loading && "loading"}
-    {err && "err"}
-    {result && <JSONTree data={result} />}
-  </div>
-);
-//...
+## Function
+
+```js
+// import getContents
+import { getContents } from "@service/r_content";
+// call with parameter
+getContents(options)
+  .then((data) => {
+    console.log(data);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+```
+
+## REAST API
+
+```js
+async function getContent() {
+  const urlWithParams = new URL("{{url}}");
+  Object.keys(options).forEach((key) =>
+    urlWithParams.searchParams.append(key, params[key])
+  );
+
+  const response = await fetch(urlWithParams);
+  const data = await response.json();
+  console.log(data);
+}
 ```

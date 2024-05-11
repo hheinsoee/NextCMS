@@ -3,7 +3,7 @@ import { MarkDownView } from "@/app/(admin)/admin/_private/components/Inputs";
 import { useTheme } from "@/context/theme";
 import { Button, Input, Space } from "antd";
 import React, { useEffect, useState } from "react";
-import { BiArrowToRight } from "react-icons/bi";
+import { BiArrowToRight, BiCheck } from "react-icons/bi";
 import { JSONTree } from "react-json-tree";
 import { JsonView } from "./JsonView";
 
@@ -19,20 +19,22 @@ function Taster({ hostname, pathname, templates }: TasterArgs) {
   const { isDark } = useTheme();
   const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState();
-  const [err, setErr] = useState(false);
+  const [result, setResult] = useState(undefined);
+  const [err, setErr] = useState(undefined);
   const pre = `${hostname ? `http://${hostname}` : ""}/api/`;
   useEffect(() => {
     setPath(pathname ? `${pathname.join("/")}/` : "");
   }, [pathname]);
   const handleSubmit = async () => {
     setLoading(true);
+    setErr(undefined);
+    setResult(undefined);
     await fetch(pre + path)
       .then(async (response: any) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const d = await response.json()
+        const d = await response.json();
         setResult(d);
       })
       .catch((err: any) => {
@@ -56,12 +58,31 @@ function Taster({ hostname, pathname, templates }: TasterArgs) {
           loading={loading}
           icon={<BiArrowToRight />}
           onClick={handleSubmit}
-        />
+        >
+          Send
+        </Button>
       </Space.Compact>
-      <div className="h-2 opacity-40">{loading && "loading"}</div>
-      {err && <JSONTree data={err} />}
-      {result && <div className="child_transparent"><JSONTree data={result} /></div>}
-      {/* {result && <JsonView newData={result} />} */}
+      <div>
+        {loading ? (
+          <div className="opacity-40">loading..</div>
+        ) : err ? (
+          <div className="text-red-800 dark:text-red-400">{err?.message}</div>
+        ) : (
+          <div className="text-green-800 dark:text-green-400">
+            Success <BiCheck />
+          </div>
+        )}
+      </div>
+      {err && (
+        <div className="child_transparent">
+          <JSONTree data={err} />
+        </div>
+      )}
+      {result && (
+        <div className="child_transparent">
+          <JSONTree data={result} />
+        </div>
+      )}
     </div>
   );
 }

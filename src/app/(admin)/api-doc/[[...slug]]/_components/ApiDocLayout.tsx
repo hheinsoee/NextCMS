@@ -7,7 +7,7 @@ const ApiDocLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex gap-4 w-full flex-1">
       <div>
-        <div className="sticky top-0">
+        <div className="sticky top-0 ">
           <ApiDocMenu />
         </div>
       </div>

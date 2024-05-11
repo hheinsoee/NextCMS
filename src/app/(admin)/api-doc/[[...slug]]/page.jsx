@@ -15,12 +15,14 @@ export default async function Page({ params }) {
     <ApiDocLayout>
       <Row>
         <Col span={12} >
-          <div className="sticky top-0 max-h-screen">
-            <Doc hostname={host} pathname={params.slug} templates={[{ name: 'tast', value: text }]} />
-          </div>
+          <Doc hostname={host} pathname={params.slug} templates={[{ name: 'tast', value: text }]} />
+
         </Col>
         <Col span={12} className="min-h-screen">
-          <Taster hostname={host} pathname={params.slug} templates={[{ name: 'tast', value: text }]} />
+
+          <div className="sticky top-0 max-h-screen overflow-y-auto">
+            <Taster hostname={host} pathname={params.slug} templates={[{ name: 'tast', value: text }]} />
+          </div>
         </Col>
       </Row>
     </ApiDocLayout>
