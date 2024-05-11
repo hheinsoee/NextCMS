@@ -4,18 +4,7 @@ import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
 import { ContentType, UpdateTaxonomyType } from "@schema";
 
-const prettyType = (d: any) => {
-  return {
-    ...d,
-    taxonomyTypes: d.mapContentTypeTaxonomyType.map((t: any) => t.taxonomyType),
-    taxonomieTypeIds: d.mapContentTypeTaxonomyType?.map(
-      (t: any) => t.taxonomyTypeId
-    ),
-    fieldTypes: d.fieldType,
-    fieldType: undefined,
-    mapContentTypeTaxonomyType: undefined,
-  };
-};
+
 // #region getMany
 export const getContentTypes = async (
   props?: Prisma.contentTypeFindManyArgs
@@ -37,8 +26,7 @@ export const getContentTypes = async (
   return await prisma.contentType
     .findMany(q)
     .then((data) => {
-      const d: ContentType[] = data.map((d: any) => prettyType(d));
-      return d;
+      return data;
     })
     .catch((e) => {
       throw e;
@@ -51,7 +39,6 @@ export const getContentTypes = async (
 export const getContentType = async (
   props?: Prisma.contentTypeFindUniqueArgs
 ) => {
-  console.log(props)
   const q = {
     include: {
       fieldType: true,
@@ -66,7 +53,7 @@ export const getContentType = async (
   return await prisma.contentType
     .findFirst(q)
     .then((data) => {
-      return prettyType(data);
+      return data;
     })
     .catch((e) => {
       throw e;
@@ -158,7 +145,7 @@ export const updateContentType = async ({ where, data }: UpdateContentType) => {
     })
     .then((d) => {
       console.log({ d });
-      return getContentTypes({
+      return getContentType({
         where: {
           id: d.id,
         },

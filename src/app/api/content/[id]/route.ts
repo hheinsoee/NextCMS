@@ -19,8 +19,5 @@ export async function GET(
     .then((data) => {
       return NextResponse.json({ data });
     })
-    .catch((error) => {
-      console.log(error);
-      return errorResponse(error, error.code);
-    });
+    .catch((error) => errorResponse(error));
 }

@@ -21,20 +21,40 @@ export const getTaxonomyTypes = async ({
       },
     })
     .then((d) => {
-      return d.map((d) => ({
-        ...d,
-        taxonomies: d.taxonomy,
-        taxonomy: undefined,
-      }));
+      return d;
     })
     .catch((e) => {
-      throw new Error(e);
+      throw e;
     })
     .finally(async () => {
       await prisma.$disconnect();
       // process.exit(1);
     });
-
+    export const getTaxonomyType = async ({
+      taxonomy,
+      where,
+    }: {
+      taxonomy?: boolean;
+      where?: any;
+    }) =>
+      await prisma.taxonomyType
+        .findFirst({
+          where,
+          include: {
+            taxonomy,
+          },
+        })
+        .then((d) => {
+          return d;
+        })
+        .catch((e) => {
+          throw e;
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+          // process.exit(1);
+        });
+    
 // interface ab {
 //   name: string;
 // }
@@ -56,7 +76,7 @@ export const createTaxonomy = async ({ data }: { data: TaxonomyType }) => {
   return await prisma.taxonomyType
     .create(q)
     .then((d) => {
-      return getTaxonomyTypes({
+      return getTaxonomyType({
         taxonomy: true,
         where: {
           id: d.id,
@@ -64,7 +84,7 @@ export const createTaxonomy = async ({ data }: { data: TaxonomyType }) => {
       });
     })
     .catch((e) => {
-      throw new Error(e);
+      throw e;
     })
     .finally(async () => {
       await prisma.$disconnect();
@@ -89,7 +109,7 @@ export const updateTaxonomy = async ({ where, data }: any) => {
   return await prisma.taxonomyType
     .update(q)
     .then((d) => {
-      return getTaxonomyTypes({
+      return getTaxonomyType({
         taxonomy: true,
         where: {
           id: d.id,

@@ -6,9 +6,10 @@ import { Button, Col, Flex, List, Popconfirm, Row, Space, message } from "antd";
 import ContentForm from "./ContentForm";
 import { makeFresh } from "@hheinsoee/utility";
 import Loading from "@components/Loading";
-import { MarkDownView } from "../../_private/components/Inputs";
+import { MarkDownView } from "@admin/_private/components/Inputs";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Cell from "@/components/Cell";
+import { prettyContent } from "@admin/_private/prittier";
 
 
 function Archive({ type }) {
@@ -25,7 +26,7 @@ function Archive({ type }) {
       },
     })
       .then((data) => {
-        setContent(data);
+        setContent(data.map((d) => prettyContent(d)));
       })
       .catch((error) => {
         message.error("sth wrong");
@@ -49,7 +50,7 @@ function Archive({ type }) {
         id
       }
     })
-      .then((data) => {
+      .then(() => {
         message.success("Deleted")
         setContent(data => data.filter((c => c.id !== id)));
       })

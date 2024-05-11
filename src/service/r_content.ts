@@ -3,28 +3,6 @@ import prisma from "@/db";
 import { safeData } from "./index";
 import { Prisma } from "@prisma/client";
 import { Content, Field, Taxonomy } from "@schema";
-// #region contentPretty
-const contentPretty = (d: any) => {
-  const prettyContent: Content = {
-    ...d,
-    sfd: "sd",
-    fields: d.field,
-    taxonomies: d.contentType?.mapContentTypeTaxonomyType.map((obj: any) => {
-      return {
-        ...obj.taxonomyType,
-        recordIds: d.mapContentTaxonomy
-          .filter(
-            (map: any) => map.taxonomy.taxonomyTypeId === obj.taxonomyType.id
-          )
-          .map((o: any) => o.taxonomy.id),
-      };
-    }, {}),
-    field: undefined,
-    mapContentTaxonomy: undefined,
-    contentType: undefined,
-  };
-  return prettyContent;
-};
 
 // #region getContents
 export const getContents = async (props?: Prisma.contentFindManyArgs) =>
@@ -53,7 +31,7 @@ export const getContents = async (props?: Prisma.contentFindManyArgs) =>
       },
     })
     .then((data) => {
-      return data.map((d) => contentPretty(d));
+      return data;
     })
     .catch((e) => {
       throw e;
@@ -62,10 +40,6 @@ export const getContents = async (props?: Prisma.contentFindManyArgs) =>
       await prisma.$disconnect();
     });
 
-function flatten2DArray<T>(arr: T[][]): T[] {
-  return arr.flatMap((row) => row);
-}
-// #region getContent
 export const getContent = async (props?: Prisma.contentFindFirstArgs) =>
   await prisma.content
     .findFirstOrThrow({
@@ -92,7 +66,7 @@ export const getContent = async (props?: Prisma.contentFindFirstArgs) =>
       },
     })
     .then((data) => {
-      return contentPretty(data);
+      return data;
     })
     .catch((e) => {
       throw e;
@@ -118,11 +92,12 @@ export const createContent = async ({ data }: { data: Content }) => {
       },
       mapContentTaxonomy: {
         createMany: {
-          data: data.taxonomies
-            .flatMap((row: Taxonomy) =>
-              row.recordIds.map((num) => ({ taxonomyId: num }))
-            )
-            .filter((item: any) => item !== undefined),
+          data:
+            data.taxonomies
+              ?.flatMap((row: Taxonomy) =>
+                row.recordIds.map((num) => ({ taxonomyId: num }))
+              )
+              .filter((item: any) => item !== undefined) ?? [],
         },
       },
     },
@@ -171,11 +146,12 @@ export const updateContent = async ({
       mapContentTaxonomy: {
         deleteMany: {},
         createMany: {
-          data: data.taxonomies
-            .flatMap((row: Taxonomy) =>
-              row.recordIds.map((num) => ({ taxonomyId: num }))
-            )
-            .filter((item: any) => item !== undefined),
+          data:
+            data.taxonomies
+              ?.flatMap((row: Taxonomy) =>
+                row.recordIds.map((num) => ({ taxonomyId: num }))
+              )
+              .filter((item: any) => item !== undefined) ?? [],
         },
       },
     },

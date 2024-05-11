@@ -16,5 +16,5 @@ export async function GET(
     .then((data) => {
       return NextResponse.json(data);
     })
-    .catch((error) => errorResponse(error, 500));
+    .catch((error) => errorResponse(error));
 }

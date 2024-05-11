@@ -6,6 +6,7 @@ import { JSONTree } from 'react-json-tree';
 import Loading from '@components/Loading';
 import { makeFresh } from "@hheinsoee/utility";
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { prettyTaxonomy } from '@admin/_private/prittier'
 
 function TaxonomyArchive({ selected, setSelected, freshData }) {
     const [data, setData] = useState([])
@@ -17,7 +18,7 @@ function TaxonomyArchive({ selected, setSelected, freshData }) {
         setLoading(true);
         getTaxonomyTypes({ taxonomy: true })
             .then((data) => {
-                setData(data);
+                setData(data.map(d => prettyTaxonomy(d)));
             })
             .catch((error) => {
                 message.error(error?.message || "sth wrong");
@@ -32,7 +33,8 @@ function TaxonomyArchive({ selected, setSelected, freshData }) {
     }, []);
     useEffect(() => {
         if (freshData) {
-            setData(makeFresh({ old: data, fresh: freshData }))
+            console.log(freshData)
+            setData(makeFresh({ old: data, fresh: prettyTaxonomy(freshData) }))
         }
     }, [freshData])
     const handleDelete = (id) => {

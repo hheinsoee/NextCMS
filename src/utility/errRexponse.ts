@@ -5,22 +5,16 @@ const errCode: Record<string, number> = {
   default: 500,
 };
 
-export const errorResponse = (err: string | any, code: string | number) => {
+export const errorResponse = (err: any | number, message?: string) => {
+  const code = err.code || "default";
+  const m = message || null;
   if (code in errCode) {
-    return NextResponse.json(
-      typeof err == "string"
-        ? { message: err }
-        : { ...err },
-      {
-        status: errCode[code],
-      }
-    );
+    return NextResponse.json(m || { code: errCode[code] }, {
+      status: errCode[code],
+    });
   } else {
-    return NextResponse.json(
-      typeof err == "string" ? { message: err } : { ...err },
-      {
-        status: errCode["default"],
-      }
-    );
+    return NextResponse.json(m || { code: errCode[code] }, {
+      status: errCode["default"],
+    });
   }
 };

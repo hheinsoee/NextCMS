@@ -9,5 +9,5 @@ export async function GET(request: NextRequest) {
     .then((data) => {
       return NextResponse.json(data);
     })
-    .catch((error) => errorResponse(error, 500));
+    .catch((error) => errorResponse(error));
 }

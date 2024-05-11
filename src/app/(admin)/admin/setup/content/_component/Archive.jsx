@@ -6,7 +6,7 @@ import { JSONTree } from 'react-json-tree';
 import Loading from '@components/Loading';
 import { makeFresh } from "@hheinsoee/utility";
 import { FaEdit, FaTrash } from 'react-icons/fa';
-
+import { prettyType } from './../../../_private/prittier'
 function ContentTypeArchive({ selected, setSelected, freshData }) {
     const [t_content, setT_content] = useState([])
     const [loading, setLoading] = useState(false);
@@ -17,7 +17,8 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
         setLoading(true);
         getContentTypes()
             .then((data) => {
-                setT_content(data);
+                const d = data.map((d) => prettyType(d));
+                setT_content(d);
             })
             .catch((error) => {
                 message.error(error?.message || "sth wrong");
@@ -32,7 +33,7 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
     }, []);
     useEffect(() => {
         if (freshData) {
-            setT_content(makeFresh({ old: t_content, fresh: freshData }))
+            setT_content(makeFresh({ old: t_content, fresh: prettyType(freshData) }))
         }
     }, [freshData])
     const handleDelete = (id) => {

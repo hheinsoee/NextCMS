@@ -4,7 +4,8 @@ import { JSONTree } from 'react-json-tree';
 import { MarkDownEditor } from '../../_private/components/Inputs'
 import { createContent, updateContent } from '@service/r_content';
 import { Button, Col, Divider, Flex, Form, Input, Row, Select, Space, message } from 'antd';
-import { useRepo } from '../../_private/context/repo';
+import { useRepo } from '@admin/_private/context/repo';
+import { prettyContent } from '@admin/_private/prittier';
 
 function ContentForm({ type, selected, setSelected, setFreshData }) {
     const [loading, setLoading] = useState();
@@ -39,8 +40,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                 }
             }).then((result) => {
                 message.success('updated');
-                console.log({result})
-                setFreshData(result)
+                setFreshData(prettyContent(result))
             }).catch((error) => {
                 message.error(error?.message || "sth wrong");
             }).finally(() => {
@@ -55,7 +55,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                 }
             }).then((result) => {
                 message.success('created');
-                setFreshData(result)
+                setFreshData(prettyContent(result))
                 handleClear()
             }).catch((error) => {
                 message.error(error?.message || "sth wrong");
@@ -67,7 +67,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
     }
 
     return (
-        <div  className="px-8 box-border mx-auto max-h-screen overflow-y-auto">
+        <div className="px-8 box-border mx-auto max-h-screen overflow-y-auto">
             {/* <JSONTree data={{ type, selected, ls_taxonomy_type, formData }} /> */}
             <Form
                 onFinish={handleSubmit}
