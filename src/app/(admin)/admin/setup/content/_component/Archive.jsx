@@ -7,11 +7,12 @@ import Loading from '@components/Loading';
 import { makeFresh } from "@hheinsoee/utility";
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { prettyType } from './../../../_private/prittier'
+import { useRepo } from '../../../_private/context/repo';
 function ContentTypeArchive({ selected, setSelected, freshData }) {
     const [t_content, setT_content] = useState([])
     const [loading, setLoading] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
-
+    const { contentTypes, setRepo } = useRepo()
 
     const loadContentTypeList = () => {
         setLoading(true);
@@ -31,6 +32,9 @@ function ContentTypeArchive({ selected, setSelected, freshData }) {
     useEffect(() => {
         loadContentTypeList();
     }, []);
+    useEffect(() => {
+        if(t_content.length>0){setRepo(r => ({ ...r, contentTypes: t_content }))}
+    }, [t_content])
     useEffect(() => {
         if (freshData) {
             setT_content(makeFresh({ old: t_content, fresh: prettyType(freshData) }))

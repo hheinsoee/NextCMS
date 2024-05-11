@@ -25,10 +25,10 @@ export const prettyContent = (d: any) => {
 export const prettyType = (d: any) => {
   return {
     ...d,
-    taxonomyTypes: d.mapContentTypeTaxonomyType.map((t: any) => t.taxonomyType),
+    taxonomyTypes: d.mapContentTypeTaxonomyType?.map((t: any) => t.taxonomyType)??[],
     taxonomieTypeIds: d.mapContentTypeTaxonomyType?.map(
       (t: any) => t.taxonomyTypeId
-    ),
+    )??[],
     fieldTypes: d.fieldType,
     fieldType: undefined,
     mapContentTypeTaxonomyType: undefined,

@@ -7,12 +7,12 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
-import { useRepo } from "../context/repo";
 import Link from "next/link";
-import { adminLink } from "../adminRoute";
 import { FaDotCircle } from "react-icons/fa";
+import { useRepo } from "../admin/_private/context/repo";
+import { apiDocLinks } from "./_link";
 
-const AdminMenu: React.FC = () => {
+export const ApiDocMenu: React.FC = () => {
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("click ", e);
   };
@@ -21,7 +21,7 @@ const AdminMenu: React.FC = () => {
     <Menu
       onClick={onClick}
       title="hello"
-      style={{ border: "none" }}
+      style={{ border: "none", background:'transparent' }}
       defaultSelectedKeys={["1"]}
       defaultOpenKeys={["sub1"]}
       mode="inline"
@@ -30,8 +30,7 @@ const AdminMenu: React.FC = () => {
           key: "content",
           children: contentTypes.map((t: any) => ({
             key: t.id,
-            icon: <FaDotCircle />,
-            label: <Link href={adminLink.content(t.name)}>{t.name}</Link>,
+            label: <Link href={apiDocLinks.content(t.id)}>{t.name}</Link>,
           })),
           label: "content",
           type: "group",
@@ -43,19 +42,14 @@ const AdminMenu: React.FC = () => {
           children: [
             {
               key: "content_type",
-              icon: <FaDotCircle />,
               label: (
-                <Link href={adminLink.setup("content")}>
-                  Content Type Manager
-                </Link>
+                <Link href={apiDocLinks.home("content")}>Content Type</Link>
               ),
             },
             {
               key: "taxonomy_type",
-              icon: <FaDotCircle />,
-              label: (
-                <Link href={adminLink.setup("taxonomy")}>Taxonomy Manager</Link>
-              ),
+
+              label: <Link href={apiDocLinks.home("taxonomy")}>Taxonomy</Link>,
             },
           ],
           label: "setup",
@@ -65,5 +59,3 @@ const AdminMenu: React.FC = () => {
     />
   );
 };
-
-export default AdminMenu;

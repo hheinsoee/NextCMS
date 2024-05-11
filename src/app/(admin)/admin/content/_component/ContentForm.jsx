@@ -11,7 +11,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
     const [loading, setLoading] = useState();
     const [formData, setFormData] = useState();
     const [form] = Form.useForm();
-    const { ls_taxonomy_type } = useRepo();
+    const { taxonomyTypes } = useRepo();
 
     useEffect(() => {
         form.resetFields()
@@ -68,7 +68,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
 
     return (
         <div className="px-8 box-border mx-auto max-h-screen overflow-y-auto">
-            {/* <JSONTree data={{ type, selected, ls_taxonomy_type, formData }} /> */}
+            {/* <JSONTree data={{ type, selected, taxonomyTypes, formData }} /> */}
             <Form
                 onFinish={handleSubmit}
                 form={form}
@@ -148,7 +148,7 @@ function ContentForm({ type, selected, setSelected, setFreshData }) {
                                                 mode="multiple"
                                                 style={{ width: '100%' }}
                                                 options={
-                                                    ls_taxonomy_type.find(tax => tax.id == t.id).taxonomies.map((taxo => ({ ...taxo, value: taxo.id, label: taxo.name })))
+                                                    taxonomyTypes.find(tax => tax.id == t.id).taxonomies.map((taxo => ({ ...taxo, value: taxo.id, label: taxo.name })))
                                                 }
                                                 placeholder={t.name} />
                                         </Form.Item>

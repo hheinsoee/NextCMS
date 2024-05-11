@@ -128,3 +128,7 @@ p a {
 .thumbnail:hover .action {
 	@apply opacity-100;
 }
+.child_transparent>*,
+.c-json-view{
+	background: transparent!important;
+}

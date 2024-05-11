@@ -10,7 +10,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
     const [loading, setLoading] = useState();
     const [formData, setFormData] = useState();
     const [form] = Form.useForm();
-    const { ls_taxonomy_type } = useRepo();
+    const { taxonomyTypes } = useRepo();
 
 
     useEffect(() => {
@@ -173,7 +173,7 @@ function ContentTypeForm({ selected, setSelected, setFreshData }) {
                             <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
-                                options={ls_taxonomy_type.map((t) => ({
+                                options={taxonomyTypes.map((t) => ({
                                     label: t.name,
                                     value: t.id
                                 }))}

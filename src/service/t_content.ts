@@ -93,7 +93,7 @@ export const createContentType = async (data: ContentType) => {
   return await prisma.contentType
     .create(q)
     .then((d) => {
-      return getContentTypes({
+      return getContentType({
         where: {
           id: d.id,
         },

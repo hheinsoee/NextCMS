@@ -6,8 +6,8 @@ import { notFound } from "next/navigation";
 
 function Page({ params }) {
   const { type_name } = params;
-  const { ls_content_type } = useRepo();
-  const theType = ls_content_type.find((t) => t.name == type_name);
+  const { contentTypes } = useRepo();
+  const theType = contentTypes.find((t) => t.name == type_name);
   if (theType) {
     return (
       <div>
