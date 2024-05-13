@@ -16,6 +16,10 @@ yarn
 ```
 
 to create table and update prisma client
+config .env
+```env
+DATABASE_URL="mysql://root:password@localhost:3306/next_cms"
+```
 ```bash
 npx prisma migrate dev
 npx prisma generate 
