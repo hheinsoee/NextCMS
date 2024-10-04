@@ -47,7 +47,7 @@ model fieldType {
   id            Int          @id @default(autoincrement())
   name          String       @db.VarChar(200)
   contentTypeId Int?
-  dataType     String?      @db.VarChar(20)
+  dataType      String?      @db.VarChar(20)
   createTime    DateTime?    @default(now()) @db.DateTime(0)
   contentType   contentType? @relation(fields: [contentTypeId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FieldType_ibfk_1")
 
@@ -55,12 +55,12 @@ model fieldType {
 }
 
 model mapContentTaxonomy {
-  id          Int       @id @default(autoincrement())
-  contentId   Int
+  id         Int       @id @default(autoincrement())
+  contentId  Int
   taxonomyId Int
-  createTime  DateTime? @default(now()) @db.DateTime(0)
-  content     content   @relation(fields: [contentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_1")
-  taxonomy    taxonomy  @relation(fields: [taxonomyId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_2")
+  createTime DateTime? @default(now()) @db.DateTime(0)
+  content    content   @relation(fields: [contentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_1")
+  taxonomy   taxonomy  @relation(fields: [taxonomyId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "map_Content_Taxonomy_ibfk_2")
 
   @@index([contentId], map: "contentId")
   @@index([taxonomyId], map: "taxonomy_id")
@@ -96,4 +96,24 @@ model taxonomyType {
   createTime                 DateTime?                    @default(now()) @db.DateTime(0)
   mapContentTypeTaxonomyType mapContentTypeTaxonomyType[]
   taxonomy                   taxonomy[]
+}
+
+model test {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(200)
+  description String?   @db.Text
+  createTime  DateTime? @default(now()) @db.DateTime(0)
+  test2Id     Int?
+
+  test2 test2? @relation(fields: [test2Id], references: [id], onUpdate: NoAction, map: "test2_ibfk_1")
+
+  @@index([test2Id], map: "test2_Id")
+}
+
+model test2 {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(200)
+  description String?   @db.Text
+  createTime  DateTime? @default(now()) @db.DateTime(0)
+  test        test[]
 }
